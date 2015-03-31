@@ -145,6 +145,20 @@ if ( $config{'general.flagDRIVERNET'} ) {
 	print "Job submitted.\n";
 }
 
+if ( $config{'general.flagANNOVAR'} ) {
+	print "Running ANNOVAR annotationl. Please wait...";
+	
+	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
+	
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_ANNOVAR -e $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.run.log $config{'general.scriptsDir'}/annotate_with_annovar.pl --input $config{'general.dataDir'}/$config{'snp.snpFolders'} --destination $config{'general.outDir'}";
+	$command = $command . " --debug" if ($flag_debug);
+	submit($command);
+	
+	print "Job submitted.\n";
+}
+
+
+
 ### Sub-routines ###
 #sub prep_exp {
 #	my (
