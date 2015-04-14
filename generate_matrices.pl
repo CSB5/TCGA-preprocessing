@@ -112,6 +112,16 @@ if ( $config{'general.flagMUT'} ) {
 	submit($command);	
 	
 	print "Job submitted.\n";	
+	
+	
+	print "Generating sample-based mutation information. Please wait...";
+	
+	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
+	
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N  $config{'general.disease'}_mut -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_mut.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_mut.run.log -hold_jid " . join(",", @queue) . " $config{'general.scriptsDir'}/generate_sample_based_gene_mutation_info.pl --in $config{'general.outDir'}/gene_mutation_frequency.txt --cc $config{'general.cancerCensus'} --outDir $config{'general.outDir'}";
+	submit($command);	
+	
+	print "Job submitted.\n";	
 }
 
 if ( $config{'general.flagONCOIMPACT'} ) {
