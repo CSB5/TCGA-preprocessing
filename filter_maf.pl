@@ -53,12 +53,13 @@ if ($flag_debug) {
 	print STDERR "[DEBUG] Output directory:$outDir\n";
 }
 
-my ( %samples, $sampleID, @temp );
+my ( %samples, $sampleID, @temp, @currentLine, $normalID );
 
 # Reading list of samples
 open( FILE, $samplesList );
 while (<FILE>) {
-	$samples{$_} = "";
+	chomp($sampleID = $_);
+	$samples{$sampleID} = "";
 }
 close(FILE);
 
@@ -66,14 +67,20 @@ close(FILE);
 open( OUT,  "> $outDir/TCGA_somatic_mutations.filtered.maf" );
 print STDERR "[DEBUG] Output file:$outDir/TCGA_somatic_mutations.filtered.maf\n" if $flag_debug; 
 open( FILE, $TCGAmaf );
-print OUT <FILE>;    # print header
+my $header = <FILE>;
+print OUT $header;    # print header
 while (<FILE>) {
-	chomp( @temp = split( /\t/, $_ ) );
-	$sampleID = $temp[15];
+	chomp( @currentLine = split( /\t/, $_ ) );
+	$sampleID = $currentLine[15];
 	@temp     = split( /-/, $sampleID );
 	$sampleID = "$temp[0]-$temp[1]-$temp[2]-$temp[3]";
+	$currentLine[15] = $sampleID;
+	$normalID = $currentLine[16];	
+	@temp     = split( /-/, $normalID );	
+	$normalID = "$temp[0]-$temp[1]-$temp[2]-$temp[3]";
+	$currentLine[16] = $normalID;
 	print STDERR "Checking sample:$sampleID\n" if $flag_debug;
-	print OUT $_ if ( exists $samples{$sampleID} );
+	print OUT join("\t", @currentLine) if ( exists $samples{$sampleID} );
 }
 close(OUT);
 close(FILE);
