@@ -114,9 +114,18 @@ if ( $config{'general.flagMUT'} ) {
 	print "Job submitted.\n";	
 	
 	
-	print "Generating sample-based mutation information. Please wait...";
+	print "Filtering TCGA MAF file against complete_samples_list. Please wait...";
 	
-	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
+	my $lastID = $queue[-1];
+	my $mafFile = glob "$config{'snp.snpFolders'}/*.maf";
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N  $config{'general.disease'}_filterMAF -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.run.log -hold_jid $lastID $config{'general.scriptsDir'}/filter_maf.pl --samples $config{'general.outDir'}/complete_samples_list.txt --maf $mafFile --outDir $config{'general.outDir'}";
+	$command = $command . " --debug" if ($flag_debug);
+	submit($command);
+	
+	print "Job submitted.\n";
+	
+	
+	print "Generating sample-based mutation information. Please wait...";
 	
 	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N  $config{'general.disease'}_mut -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_mut.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_mut.run.log -hold_jid " . join(",", @queue) . " $config{'general.scriptsDir'}/generate_sample_based_gene_mutation_info.pl --in $config{'general.outDir'}/gene_mutation_frequency.txt --cc $config{'general.cancerCensus'} --outDir $config{'general.outDir'}";
 	submit($command);	
