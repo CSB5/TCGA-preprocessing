@@ -80,7 +80,7 @@ while (<FILE>) {
 	$normalID = "$temp[0]-$temp[1]-$temp[2]-$temp[3]";
 	$currentLine[16] = $normalID;
 	print STDERR "Checking sample:$sampleID\n" if $flag_debug;
-	print OUT join("\t", @currentLine) if ( exists $samples{$sampleID} );
+	print OUT join("\t", @currentLine) . "\n" if ( exists $samples{$sampleID} );
 }
 close(OUT);
 close(FILE);
