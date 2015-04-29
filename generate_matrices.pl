@@ -58,7 +58,7 @@ my $runtime = "$config{'cluster.runtime'}:0:0";
 if ( $config{'general.flagCNV'} ) {
 	print "Preparing CNV data. Please wait...";
 	
-	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_cnv -e $config{'general.logsDir'}/$config{'general.disease'}_cnv.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_cnv.run.log $config{'general.scriptsDir'}/cnv_data.pl --input $config{'general.dataDir'}/$config{'cnv.cnvFolder'} --fileManifest  $config{'general.dataDir'}/$config{'general.fileManifest'} --destination $config{'general.analysisDir'} --region $config{'cnv.region'} --extention $config{'cnv.extention'} --clinical $config{'general.dataDir'}/$config{'cnv.clinicalData'} --minUp $config{'cnv.minUp'} --minDown $config{'cnv.minDown'} --scripts $config{'general.scriptsDir'}";
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_cnv -e $config{'general.logsDir'}/$config{'general.disease'}_cnv.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_cnv.run.log $config{'general.scriptsDir'}/cnv_data.pl --in $config{'cnv.inputFile'} --destination $config{'general.analysisDir'}";
 	$command = $command . " --debug" if ($flag_debug);
 	submit($command);
 	
@@ -68,15 +68,7 @@ if ( $config{'general.flagCNV'} ) {
 if ( $config{'general.flagSNP'} ) {
 	print "Preparing SNP data. Please wait...";
 	
-	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N $config{'general.disease'}_snp -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_snp.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_snp.run.log $config{'general.scriptsDir'}/snp_data.pl";
-	if ( ref($config{'snp.snpFolders'} ) eq 'ARRAY'){
-		foreach ( @{$config{'snp.snpFolders'}} ) {
-			$command = $command . " --input $config{'general.dataDir'}/$_";
-		}
-	} else{
-		$command = $command . " --input $config{'general.dataDir'}/$config{'snp.snpFolders'}";
-	}
-	$command = $command . " --destination $config{'general.analysisDir'}";
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N $config{'general.disease'}_snp -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_snp.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_snp.run.log $config{'general.scriptsDir'}/snp_data.pl --in $config{'snp.maf'} --destination $config{'general.analysisDir'}";
 	$command = $command . " --debug" if ($flag_debug);
 	submit($command);
 	
@@ -117,8 +109,7 @@ if ( $config{'general.flagMUT'} ) {
 	print "Filtering TCGA MAF file against complete_samples_list. Please wait...";
 	
 	my $lastID = $queue[-1];
-	my $mafFile = glob "$config{'snp.snpFolders'}/*.maf";
-	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N  $config{'general.disease'}_filterMAF -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.run.log -hold_jid $lastID $config{'general.scriptsDir'}/filter_maf.pl --samples $config{'general.outDir'}/complete_samples_list.txt --maf $mafFile --outDir $config{'general.outDir'}";
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -N  $config{'general.disease'}_filterMAF -pe OpenMP 1 -e $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_filterMAF.run.log -hold_jid $lastID $config{'general.scriptsDir'}/filter_maf.pl --samples $config{'general.outDir'}/complete_samples_list.txt --maf $config{'snp.maf'} --outDir $config{'general.outDir'}";
 	$command = $command . " --debug" if ($flag_debug);
 	submit($command);
 	
@@ -169,7 +160,7 @@ if ( $config{'general.flagANNOVAR'} ) {
 	
 	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
 	
-	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_ANNOVAR -e $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.run.log $config{'general.scriptsDir'}/annotate_with_annovar.pl --input $config{'general.dataDir'}/$config{'snp.snpFolders'} --destination $config{'general.outDir'}";
+	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_ANNOVAR -e $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.run.log -hold_jid " . join(",", @queue) . " $config{'general.scriptsDir'}/annotate_with_annovar.pl --in $config{'general.outDir'}/GDAC_somatic_mutations.filtered.maf --destination $config{'general.outDir'}";
 	$command = $command . " --debug" if ($flag_debug);
 	submit($command);
 	

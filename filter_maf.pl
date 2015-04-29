@@ -64,8 +64,8 @@ while (<FILE>) {
 close(FILE);
 
 # Generating filtered MAF
-open( OUT,  "> $outDir/TCGA_somatic_mutations.filtered.maf" );
-print STDERR "[DEBUG] Output file:$outDir/TCGA_somatic_mutations.filtered.maf\n" if $flag_debug; 
+open( OUT,  "> $outDir/GDAC_somatic_mutations.filtered.maf" );
+print STDERR "[DEBUG] Output file:$outDir/GDAC_somatic_mutations.filtered.maf\n" if $flag_debug; 
 open( FILE, $TCGAmaf );
 my $header = <FILE>;
 print OUT $header;    # print header

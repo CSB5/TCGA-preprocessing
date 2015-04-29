@@ -49,7 +49,7 @@ if ($flag_help) {
 
 foreach my $sample (@samples){
 	print "Currently processing sample: $sample\n";
-	$outDir = "$rootDir/" . uc $sample;
+	$outDir = "$rootDir/" . (uc $sample);
 	$command = "mkdir -p $outDir/GISTIC2 $outDir/MUTSIGCV";
 	print STDERR "$command\n" if $flag_debug;
 	system($command);
@@ -57,17 +57,18 @@ foreach my $sample (@samples){
 	print "Downloading data...";
 	$command = "firehose_get -tasks mutsig gistic analyses latest " . (lc $sample) . "< $rootDir/cmd";
 	print STDERR "$command\n" if $flag_debug;
-	system("$command >> firehose.log");
+	system("$command &>> firehose.log");
 	print "done.\n";
 	
 	print "Unpacking data...";
-	$command = "tar -zxvf analyses__*/" . uc $sample . "/*/*MutSigNozzleReportCV.Level_4*.tar.gz -C $outDir/MUTSIGCV";
+	$command = "tar -zxvf analyses__*/" . (uc $sample) . "/*/*MutSigNozzleReportCV.Level_4*.tar.gz -C $outDir/MUTSIGCV --strip-components 1";
 	print STDERR "$command\n" if $flag_debug;
 	system($command);
-	$command = "tar -zxvf analyses__*/" . uc $sample . "/*/*CopyNumber_Gistic2.Level_4*.tar.gz -C $outDir/GISTIC2";
+	$command = "tar -zxvf analyses__*/" . (uc $sample) . "/*/*CopyNumber_Gistic2.Level_4*.tar.gz -C $outDir/GISTIC2 --strip-components 1";
 	print STDERR "$command\n" if $flag_debug;
 	system($command);
 	$command = "rm -rf analyses__*";
 	print STDERR "$command\n" if $flag_debug;
-	system($command);	
+	system($command);
+	print "done.\n";	
 }
