@@ -73,7 +73,7 @@ unless ( -e $expTempDir ) {
 }
 unless ( -s "$expTempDir/FILE_SAMPLE_MAP.txt" ) {
 	$command =
-"cut -f2,22 $config{'general.dataDir'}/$config{'exp.sdrf'} | awk '{print \$2\"\\t\"\$1}' | grep \"rsem.genes.results\" | sort -k2,2 > $expTempDir/FILE_SAMPLE_MAP.txt";
+"cut -f2,22 $config{'general.dataDir'}/$config{'exp.sdrf'} | awk '{print \$2\"\\t\"\$1}' | grep \"v2.gene.quantification.txt\" | sort -k2,2 > $expTempDir/FILE_SAMPLE_MAP.txt";
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }
@@ -85,7 +85,7 @@ unless ( -s "$expTempDir/FILE_SAMPLE_MAP_NORMAL.txt" ) {
 }
 unless ( -s "$expTempDir/RNA_SEQ_COUNT_MATRIX.dat" ) {
 	$command =
-"perl $config{'general.scriptsDir'}/merge_normal_cancer_RNA_seq.pl --normal $expTempDir/FILE_SAMPLE_MAP_NORMAL.txt --id $expTempDir/FILE_SAMPLE_MAP.txt --rnaseq $config{'general.dataDir'}/$config{'exp.rnaseqDir'} --destination $expTempDir";
+"perl $config{'general.scriptsDir'}/merge_normal_cancer_RNA_seq_v1.pl --normal $expTempDir/FILE_SAMPLE_MAP_NORMAL.txt --id $expTempDir/FILE_SAMPLE_MAP.txt --rnaseq $config{'general.dataDir'}/$config{'exp.rnaseqDir'} --destination $expTempDir";
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }

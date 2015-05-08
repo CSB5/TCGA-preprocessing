@@ -25,8 +25,8 @@ do
 	echo "$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_DEseq DESeq"
 	$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_DEseq DESeq
 
-	echo "$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_cqn_foldChange foldChange"
-	$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_cqn_foldChange foldChange
+	#echo "$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_cqn_foldChange foldChange"
+	#$QSUB /home/chiakhb/SCRIPTS/TCGA_PREPROCESSING/call_DE_pool.R ${outPrefix}.pool.dat $2 DE_result_cqn_foldChange foldChange
 
 
 done

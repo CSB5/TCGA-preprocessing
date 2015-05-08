@@ -3,7 +3,7 @@
 use warnings;
 use Getopt::Long;
 
-my ($destination, $maf_dir, $flag_debug, $flag_help, $command);
+my ($destination, $maf_file, $flag_debug, $flag_help, $command);
 my $maf_database = "/mnt/genomeDB/annovar/humandb";
 
 my $help_message = "
@@ -13,7 +13,7 @@ Usage:
 	annotate_with_annovar.pl [OPTIONS]
 
 Options:
-	--input = full path to folder containing SNP data *
+	--in = full path to MAF file *
 	--destination = full path to output folder *
 	--debug: prints trace to STDERR
 	--help : prints this message 
@@ -34,7 +34,7 @@ if ( @ARGV == 0 ) {
 }
 
 GetOptions(
-	"input=s"       => \$maf_dir,
+	"in=s"       => \$maf_file,
 	"destination=s" => \$destination,
 	"debug"         => \$flag_debug,
 	"help"          => \$flag_help
@@ -47,14 +47,12 @@ if ($flag_help) {
 
 if ($flag_debug) {
 	print STDERR "[ANNOVAR] Input parameters:\n";
-	print STDERR "[ANNOVAR] SNV folder: $maf_dir\n";
+	print STDERR "[ANNOVAR] MAF file: $maf_file\n";
 	print STDERR "[ANNOVAR] destination: $destination\n";
 }
 
-my @files = glob "$maf_dir/*.maf";
-
 ## convert MAF to VCF
-$command = "cat $files[0] | cut -f 5,7,11,13,16 | awk '{if(\$3 != \"-\" && \$4 != \"-\") print \$1\"\\t\"\$2\"\\t.\\t\"\$3\"\\t\"\$4\"\\t88\\tPASS\\t\"\$5}' | grep -v Chrom > $destination/annovar.vcf";
+$command = "cat $maf_file | cut -f 5,7,11,13,16 | awk '{if(\$3 != \"-\" && \$4 != \"-\") print \$1\"\\t\"\$2\"\\t.\\t\"\$3\"\\t\"\$4\"\\t88\\tPASS\\t\"\$5}' | grep -v Chrom > $destination/annovar.vcf";
 print STDERR "$command\n" if $flag_debug;
 system($command);
 
