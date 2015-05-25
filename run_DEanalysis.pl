@@ -81,36 +81,36 @@ unless (-s "$expTempDir/EXCLUDED_SAMPLES.txt") {
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }
-unless ( -s "$expTempDir/FILE_SAMPLE_MAP.txt" ) {
+unless ( -s "$expTempDir/SAMPLE_MAP.txt" ) {
 	$command =
-"cut -f2,22 $config{'general.dataDir'}/$config{'exp.sdrf'} | awk '{print \$2\"\\t\"\$1}' | grep \"rsem.genes.results\" | sort -k2,2 | grep -vf $expTempDir/EXCLUDED_SAMPLES.txt - > $expTempDir/FILE_SAMPLE_MAP.txt";
+"cut -f2,22 $config{'general.dataDir'}/$config{'exp.sdrf'} | awk '{print \$2\"\\t\"\$1}' | grep \"rsem.genes.results\" | sort -k2,2 | grep -vf $expTempDir/EXCLUDED_SAMPLES.txt - > $expTempDir/SAMPLE_MAP.txt";
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }
-unless ( -s "$expTempDir/FILE_SAMPLE_MAP_NORMAL.txt" ) {
+unless ( -s "$expTempDir/SAMPLE_MAP_NORMAL.txt" ) {
 	$command =
-"grep -f $config{'exp.selectedNormals'} $expTempDir/FILE_SAMPLE_MAP.txt | sort -k2,2 > $expTempDir/FILE_SAMPLE_MAP_NORMAL.txt";
+"grep -f $config{'exp.selectedNormals'} $expTempDir/SAMPLE_MAP.txt | sort -k2,2 > $expTempDir/SAMPLE_MAP_NORMAL.txt";
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }
-unless ( -s "$expTempDir/RNA_SEQ_COUNT_MATRIX.dat" ) {
+unless ( -s "$expTempDir/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt" ) {
 	$command =
-"perl $config{'general.scriptsDir'}/merge_normal_cancer_RNA_seq.pl --normal $expTempDir/FILE_SAMPLE_MAP_NORMAL.txt --id $expTempDir/FILE_SAMPLE_MAP.txt --rnaseq $config{'general.dataDir'}/$config{'exp.rnaseqDir'} --destination $expTempDir";
+"perl $config{'general.scriptsDir'}/filter_matrix.R $expTempDir/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_counts.txt $expTempDir/EXCLUDED_SAMPLES.txt $expTempDir/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt";
 	system($command);
 	print TRACE "[EXP] $command\n" if ($flag_debug);
 }
-$command = "wc -l < $expTempDir/FILE_SAMPLE_MAP_NORMAL.txt | cut -f 1";
+$command = "wc -l < $expTempDir/SAMPLE_MAP_NORMAL.txt | cut -f 1";
 chomp( $noNormals = `$command` );
-$command = "wc -l < $expTempDir/FILE_SAMPLE_MAP.txt | cut -f 1";
+$command = "wc -l < $expTempDir/SAMPLE_MAP.txt | cut -f 1";
 chomp( $noSamples = `$command` );
-$datTable = "$expTempDir/RNA_SEQ_COUNT_MATRIX.dat";
+$datTable = "$expTempDir/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt";
 
 print TRACE "[EXP] Num of normals: $noNormals\n" if ($flag_debug);
 print TRACE "[EXP] Num of samples: $noSamples\n" if ($flag_debug);
 print TRACE "[EXP] Dat table: $datTable\n"       if ($flag_debug);
 
 $command =
-"$config{'general.scriptsDir'}/run_DEanalysis_batch_pool.sh $expTempDir/RNA_SEQ_COUNT_MATRIX.dat $noNormals $noSamples $config{'exp.resultsDir'}";
+"$config{'general.scriptsDir'}/run_DEanalysis_batch_pool.sh $expTempDir/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt $noNormals $noSamples $config{'exp.resultsDir'}";
 system($command);
 print TRACE "[EXP] $command\n" if ($flag_debug);
 

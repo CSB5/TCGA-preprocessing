@@ -116,7 +116,7 @@ for ( my $i = 0 ; $i < @sample_order ; $i++ ) {
 		@line  = split( /\t/, $_ );
 		$gene  = $line[0];
 		$count = $line[1];
-		if ( $gene ne "gene_id" ) {
+		if ( $gene ne "gene" ) {
 			$gene = convert_name($gene);
 			if ( $gene ne "?" ) {
 				if ( !exists $gene_expression{$gene} ) {

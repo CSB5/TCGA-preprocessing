@@ -10,7 +10,7 @@ write.table(hc2Newick(hc), file="hc.newick", quote=F, col.names=F, row.names=F)
 
 library("gplots")
 pdf(file='h_clustering.pdf')
-sample_col = c(rep("red", 58), rep("blue", 490))
+sample_col = c(rep("red", 33), rep("blue", 280))
 heatmap.2(as.matrix(dist_M), ColSideColors = sample_col)
 dev.off()
 
@@ -19,7 +19,7 @@ hc <- hclust(d=d)
 write.table(hc2Newick(hc), file="hc_spearman.newick")
 
 pdf(file='h_spearman_clustering.pdf')
-sample_col = c(rep("red", 58), rep("blue", 490))
+sample_col = c(rep("red", 33), rep("blue", 280))
 heatmap.2(as.matrix(d), ColSideColors = sample_col)
 dev.off()
 

@@ -156,12 +156,26 @@ if ( $config{'general.flagDRIVERNET'} ) {
 }
 
 if ( $config{'general.flagANNOVAR'} ) {
-	print "Running ANNOVAR annotationl. Please wait...";
+	print "Running ANNOVAR annotation. Please wait...";
 	
 	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
 	
 	$command = "$qsub -l mem_free=$config{'cluster.mem'}G,h_rt=$runtime -pe OpenMP 1 -N $config{'general.disease'}_ANNOVAR -e $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.error.log -o $config{'general.logsDir'}/$config{'general.disease'}_ANNOVAR.run.log -hold_jid " . join(",", @queue) . " $config{'general.scriptsDir'}/annotate_with_annovar.pl --in $config{'general.outDir'}/GDAC_somatic_mutations.filtered.maf --destination $config{'general.outDir'}";
 	$command = $command . " --debug" if ($flag_debug);
+	submit($command);
+	
+	print "Job submitted.\n";
+}
+
+if ( $config{'general.flagEXPR'} ) {
+	print "Generating normalized expression counts. Please wait...";
+	
+	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
+	
+	$command = "cp $config{'general.analysisDir'}/RNA-SEQ/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt $config{'general.outDir'}/normalized_expression_matrix.txt";
+	submit($command);
+	
+	$command = "cp $config{'general.analysisDir'}/RNA-SEQ/selected_normals.dat $config{'general.outDir'}/";
 	submit($command);
 	
 	print "Job submitted.\n";
