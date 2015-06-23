@@ -172,7 +172,7 @@ if ( $config{'general.flagEXPR'} ) {
 	
 	system("mkdir $config{'general.outDir'}") unless (-e "$config{'general.outDir'}");
 	
-	$command = "cp $config{'general.analysisDir'}/RNA-SEQ/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt $config{'general.outDir'}/normalized_expression_matrix.txt";
+	$command = "$config{'general.scriptsDir'}/trim_sample_names.pl --in $config{'general.analysisDir'}/RNA-SEQ/RNA_SEQ_COUNT_MATRIX.DESeq.normalized_filtered.counts.txt --out $config{'general.outDir'}/normalized_expression_matrix.txt";
 	submit($command);
 	
 	$command = "cp $config{'general.analysisDir'}/RNA-SEQ/selected_normals.dat $config{'general.outDir'}/";

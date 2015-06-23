@@ -1,4 +1,11 @@
 #!/mnt/software/bin/Rscript-3.1.0 --slave
+# argv[1] = number of normals
+# argv[2] = total number of samples
+
+argv <- commandArgs(TRUE)
+numNormals <- as.integer(argv[1])
+numSamples <- as.integer(argv[2])
+numTumors <- numSamples - numNormals
 
 M = read.table(file="RNA_SEQ_COUNT_MATRIX.DESeq.normalized_counts.txt", header = TRUE, check.names=F)
 M_t = t(log2(M + 1))
@@ -10,7 +17,7 @@ write.table(hc2Newick(hc), file="hc.newick", quote=F, col.names=F, row.names=F)
 
 library("gplots")
 pdf(file='h_clustering.pdf')
-sample_col = c(rep("red", 33), rep("blue", 280))
+sample_col = c(rep("red", numNormals), rep("blue", numTumors))
 heatmap.2(as.matrix(dist_M), ColSideColors = sample_col)
 dev.off()
 
@@ -19,7 +26,7 @@ hc <- hclust(d=d)
 write.table(hc2Newick(hc), file="hc_spearman.newick")
 
 pdf(file='h_spearman_clustering.pdf')
-sample_col = c(rep("red", 33), rep("blue", 280))
+sample_col = c(rep("red", numNormals), rep("blue", numTumors))
 heatmap.2(as.matrix(d), ColSideColors = sample_col)
 dev.off()
 

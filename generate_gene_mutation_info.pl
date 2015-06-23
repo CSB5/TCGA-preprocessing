@@ -55,6 +55,9 @@ print OUT join("\n", @complete_DIR) . "\n";
 close(OUT);
 
 
+# Copy selected normals file
+system("cp $input_folder/../RNA-SEQ/selected_normals.dat $output_folder");
+
 my (%samples, %info, $geneName, $mutationType, @temp, @mutation);
 
 foreach my $dir (@complete_DIR) {

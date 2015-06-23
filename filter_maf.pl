@@ -59,6 +59,7 @@ my ( %samples, $sampleID, @temp, @currentLine, $normalID );
 open( FILE, $samplesList );
 while (<FILE>) {
 	chomp($sampleID = $_);
+	#chop($sampleID); # required for OV
 	$samples{$sampleID} = "";
 }
 close(FILE);

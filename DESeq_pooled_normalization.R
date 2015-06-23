@@ -22,8 +22,15 @@ rownames(temp) <- rownames(counts)
 temp <- na.omit(temp)
 dds <- DESeqDataSetFromMatrix(countData = temp, colData = colData, design = ~ condition)
 colData(dds)$condition <- factor(colData(dds)$condition,levels=c("untreated","treated"))
+rld <- rlogTransformation(dds)
 dds <- DESeq(dds)
+res <- data.frame(
+   assay(rld), 
+   avgLogExpr = ( assay(rld)[,2] + assay(rld)[,1] ) / 2,
+   rLogFC = assay(rld)[,2] - assay(rld)[,1] )
 			
 # generate normalized counts file
 write.table(counts(dds, normalized=TRUE), file=paste(runID, "DESeq.normalized_counts.txt", sep="."), sep="\t", row.names=T, col.names=T, quote=FALSE)
+write.table(res[ order(res$rLogFC), ], file=paste(runID, "DESeq.rLogTransform.txt", sep="."), sep="\t", row.names=T, col.names=T, quote=FALSE)
 save(dds, file=paste(runID, "DESeq.normalized_counts.rda", sep="."))
+
