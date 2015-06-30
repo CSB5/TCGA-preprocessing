@@ -7,9 +7,12 @@ numNormals <- as.integer(argv[1])
 numSamples <- as.integer(argv[2])
 numTumors <- numSamples - numNormals
 
-M = read.table(file="RNA_SEQ_COUNT_MATRIX.DESeq.normalized_counts.txt", header = TRUE, check.names=F)
-M_t = t(log2(M + 1))
-dist_M = dist(M_t)
+#M = read.table(file="RNA_SEQ_COUNT_MATRIX.DESeq.normalized_counts.txt", header = TRUE, check.names=F)
+#M_t = t(log2(M + 1))
+#dist_M = dist(M_t)
+M = read.table(file="RNA_SEQ_COUNT_MATRIX.DESeq.rLogTransform.txt", header = TRUE, check.names=F)
+dist_M = dist(M)
+
 
 library(ctc)
 hc <- hclust(d=dist_M)
