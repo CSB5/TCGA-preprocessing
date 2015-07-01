@@ -16,9 +16,9 @@ Options:
 	--in = full path to MAF file *
 	--destination = full path to output folder *
 	--debug: prints trace to STDERR
-	--help : prints this message 
-	
-* indicates required parameters	
+	--help : prints this message
+
+* indicates required parameters
 
 
 Version:
@@ -57,7 +57,7 @@ print STDERR "$command\n" if $flag_debug;
 system($command);
 
 ## Annotate VCF
-$command = "table_annovar.pl $destination/annovar.vcf $maf_database -buildver hg19 -out $destination/annovar -remove -protocol knownGene,1000g2014oct_all,snp142,ljb26_all,refGene -operation g,f,f,f,g -nastring . -vcfinput";
+$command = "table_annovar.pl $destination/annovar.vcf $maf_database -buildver hg19 -out $destination/annovar -remove -protocol knownGene,1000g2014oct_all,snp142,ljb26_all,refGene,ensGene -operation g,f,f,f,g,g -nastring . -vcfinput";
 # $command = "table_annovar.pl $destination/annovar.vcf $maf_database -buildver hg18 -out $destination/annovar -remove -protocol knownGene,ljb26_all,refGene -operation g,f,g -nastring . -vcfinput";
 print STDERR "$command\n" if $flag_debug;
 system($command);
