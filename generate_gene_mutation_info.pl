@@ -3,6 +3,7 @@
 use warnings;
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use 5.010;
 
 my ($input_folder, $output_folder, $flag_help);
 
@@ -15,9 +16,9 @@ Usage:
 Options:
 	--inDir = full path to oncoIMPACT COMPLETE_SAMPLES folder *
 	--outDir = full path to output folder *
-	--help : prints this message 
-	
-* indicates required parameters	
+	--help : prints this message
+
+* indicates required parameters
 
 
 Version:
@@ -58,7 +59,7 @@ close(OUT);
 # Copy selected normals file
 system("cp $input_folder/../RNA-SEQ/selected_normals.dat $output_folder");
 
-my (%samples, %info, $geneName, $mutationType, @temp, @mutation);
+my (%all, %allInfo, %cnv, %cnvInfo, %snp, %snpInfo, $geneName, $mutationType, @temp, @mutation);
 
 foreach my $dir (@complete_DIR) {
 	open( FILE, "$input_folder/$dir/Genelist_Status.txt");
@@ -67,33 +68,98 @@ foreach my $dir (@complete_DIR) {
 		chomp(@mutation = split(/_/, $temp[0]));
 		$geneName = $mutation[0];
 		$mutationType = $mutation[1];
-		
-		next if($mutationType eq "UP" || $mutationType eq "DOWN");
-		
-		if(! exists $samples{$geneName}){
-			my @sampleList = ();
-			my %mutationInfo = ();
-			$samples{$geneName} = \@sampleList;
-			$info{$geneName} = \%mutationInfo;
+
+		given($mutationType){
+			when(["DEL", "AMPL"]){
+				if(! exists $cnv{$geneName}){
+					my @sampleList = ();
+					my %mutationInfo = ();
+					$cnv{$geneName} = \@sampleList;
+					$cnvInfo{$geneName} = \%mutationInfo;
+				}
+
+				push( @{$cnv{$geneName}}, $dir);
+				if(! exists $cnvInfo{$geneName}->{$dir}){
+					my @mutationList = ();
+					$cnvInfo{$geneName}->{$dir} = \@mutationList;
+				}
+				push( @{$cnvInfo{$geneName}->{$dir}}, $mutationType );
+				continue;
+			}
+			when("MUT"){
+				if(! exists $snp{$geneName}){
+					my @sampleList = ();
+					my %mutationInfo = ();
+					$snp{$geneName} = \@sampleList;
+					$snpInfo{$geneName} = \%mutationInfo;
+				}
+
+				push( @{$snp{$geneName}}, $dir);
+				if(! exists $snpInfo{$geneName}->{$dir}){
+					my @mutationList = ();
+					$snpInfo{$geneName}->{$dir} = \@mutationList;
+				}
+				push( @{$snpInfo{$geneName}->{$dir}}, $mutationType );
+				continue;
+			}
+			when(["DEL","AMPL","MUT"]){
+				if(! exists $all{$geneName}){
+					my @sampleList = ();
+					my %mutationInfo = ();
+					$all{$geneName} = \@sampleList;
+					$allInfo{$geneName} = \%mutationInfo;
+				}
+
+				push( @{$all{$geneName}}, $dir);
+				if(! exists $allInfo{$geneName}->{$dir}){
+					my @mutationList = ();
+					$allInfo{$geneName}->{$dir} = \@mutationList;
+				}
+				push( @{$allInfo{$geneName}->{$dir}}, $mutationType );
+			}
+			default{
+				# do nothing
+			}
 		}
-		
-		push( @{$samples{$geneName}}, $dir);
-		if(! exists $info{$geneName}->{$dir}){
-			my @mutationList = ();
-			$info{$geneName}->{$dir} = \@mutationList;
-		}
-		push( @{$info{$geneName}->{$dir}}, $mutationType );
 	}
 	close(FILE);
 }
 
+# print combined mutation info
 open (OUT, "> $output_folder/gene_mutation_frequency.txt");
 print OUT "GeneName\tFrequency\tSampleInfo\n";
-foreach my $gene ( sort keys %samples ) {
+foreach my $gene ( sort keys %all ) {
 	print OUT "$gene\t";	# print gene name
-	print OUT (scalar uniq(@{$samples{$gene}}) / scalar @complete_DIR) . "\t";	# print frequency
-	foreach my $sample ( sort keys %{ $info{$gene} } ) {
-		print OUT "$sample:" . join(",", @{$info{$gene}->{$sample}}) . ";";
+	print OUT (scalar uniq(@{$all{$gene}}) / scalar @complete_DIR) . "\t";	# print frequency
+	foreach my $sample ( sort keys %{ $allInfo{$gene} } ) {
+		print OUT "$sample:" . join(",", @{$allInfo{$gene}->{$sample}}) . ";";
 	}
 	print OUT "\n";
 }
+close(OUT);
+
+# print CNV mutation info
+open (OUT, "> $output_folder/cnv_mutation_frequency.txt");
+print OUT "GeneName\tFrequency\tSampleInfo\n";
+foreach my $gene ( sort keys %cnv ) {
+	print OUT "$gene\t";	# print gene name
+	print OUT (scalar uniq(@{$cnv{$gene}}) / scalar @complete_DIR) . "\t";	# print frequency
+	foreach my $sample ( sort keys %{ $cnvInfo{$gene} } ) {
+		print OUT "$sample:" . join(",", @{$cnvInfo{$gene}->{$sample}}) . ";";
+	}
+	print OUT "\n";
+}
+close(OUT);
+
+# print SNP mutation info
+open (OUT, "> $output_folder/snp_mutation_frequency.txt");
+print OUT "GeneName\tFrequency\tSampleInfo\n";
+foreach my $gene ( sort keys %snp ) {
+	print OUT "$gene\t";	# print gene name
+	print OUT (scalar uniq(@{$snp{$gene}}) / scalar @complete_DIR) . "\t";	# print frequency
+	foreach my $sample ( sort keys %{ $snpInfo{$gene} } ) {
+		print OUT "$sample:" . join(",", @{$snpInfo{$gene}->{$sample}}) . ";";
+	}
+	print OUT "\n";
+}
+close(OUT);
